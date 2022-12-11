@@ -125,6 +125,23 @@ const getAlluUers = async (req, res) => {
     });
 };
 
+//for get all the added users//
+
+const getUsers = async (req, res) => {
+  User.findAll()
+    .then((result) => {
+      return res.status(200).json({
+        message: "All users list fetched successfully",
+        result: result,
+      });
+    })
+    .catch((err) => {
+      return res.status(400).json({
+        message: "Something went wrong while fetching all the users.",
+      });
+    });
+};
+
 //for get user by id//
 const getUserById = async (req, res) => {
   let id = req.params.id;
@@ -224,6 +241,7 @@ function loginUser(req, res) {
                   {
                     email: user.email,
                     userId: user.id,
+                    expiresIn: 86400,
                   },
                   process.env.JWT_KEY,
                   function (err, token) {
@@ -377,6 +395,7 @@ function changePassword(req, res, next) {
 
 // for get the reset password email on entered email address//
 function forgotPasswordEmail(req, res) {
+  console.log(req.auth.userId);
   const schema = {
     email: { type: "email", optional: false },
   };
@@ -539,4 +558,5 @@ module.exports = {
   changePassword: changePassword,
   forgotPasswordEmail: forgotPasswordEmail,
   resetPassword: resetPassword,
+  getUsers: getUsers,
 };

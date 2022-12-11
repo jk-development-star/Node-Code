@@ -61,7 +61,6 @@ declare module 'moment' {
         guess(ignoreCache?: boolean): string;
 
         setDefault(timezone?: string): Moment;
-        dataVersion: string;
     }
 
     interface Moment {

@@ -10,14 +10,10 @@ const {
   changePassword,
   forgotPasswordEmail,
   resetPassword,
+  getUsers,
 } = require("../controllers/users.controller");
 const checkAuthMiddleware = require("../middleware/check-auth");
 
-router.get("/token", checkAuthMiddleware.checkAuth, (req, res) => {
-  return res.status(200).json({
-    message: "You are authenicated!!",
-  });
-});
 /**
  * @openapi
  * "/login": {
@@ -56,7 +52,7 @@ router.get("/token", checkAuthMiddleware.checkAuth, (req, res) => {
                                     "type": "string",
                                     "description": "The 'email' field must be a valid e-mail."
                                     },
-                                    "result":[{
+                                    "result":{
                                         "id":{
                                         "type": integer,
                                         "description": "Unique ID of the user",
@@ -81,10 +77,7 @@ router.get("/token", checkAuthMiddleware.checkAuth, (req, res) => {
                                             "type": "string",
                                             "description": "The user's first role."
                                         }
-                                    }],
-                                    "token":{
-
-                                    } 
+                                    }  
                                 },
                            }
                        }
@@ -400,13 +393,18 @@ router.get("/", checkAuthMiddleware.checkAuth, getAlluUers);
        }
    }
  */
+router.get("/getUsers", checkAuthMiddleware.checkAuth, getUsers);
 router.post("/addUser", checkAuthMiddleware.checkAuth, addData);
 router.get("/:id", checkAuthMiddleware.checkAuth, getUserById);
 router.post("/updateUser/:id", checkAuthMiddleware.checkAuth, updateUser);
 router.post("/changePassword", checkAuthMiddleware.checkAuth, changePassword);
 
 router.delete("/delete/:id", checkAuthMiddleware.checkAuth, deleteUser);
-
+router.get("/token", checkAuthMiddleware.checkAuth, (req, res) => {
+  return res.status(200).json({
+    message: "You are authenicated!!",
+  });
+});
 router.post("/forgotPasswordEmail", forgotPasswordEmail);
 router.post("/reset-password/:id/:token", resetPassword);
 

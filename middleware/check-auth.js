@@ -9,6 +9,7 @@ function checkAuth(req, res, next) {
         const email = decodedToken.email;
         req.auth = { userId };
         req.email = { email };
+        console.log(req.auth)
         next();
 
     } catch (err) {

@@ -8,38 +8,53 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      lead_number: {
+      lead_id: {
+        type: Sequelize.BIGINT
+      },
+      generated_by: {
         type: Sequelize.INTEGER
       },
-      first_name: {
-        type: Sequelize.STRING
-      },
-      last_name: {
-        type: Sequelize.STRING
-      },
-      email: {
-        type: Sequelize.STRING
-      },
-      phone: {
-        type: Sequelize.STRING
-      },
-      p_image: {
-        type: Sequelize.STRING
-      },
       description: {
-        type: Sequelize.TEXT
-      },
-      address: {
         type: Sequelize.STRING
       },
-      city: {
+      assignee_id: {
         type: Sequelize.STRING
       },
-      state: {
+      covered_aread: {
         type: Sequelize.STRING
       },
-      country: {
+      owner_name: {
         type: Sequelize.STRING
+      },
+      owner_email: {
+        type: Sequelize.STRING
+      },
+      owner_phone: {
+        type: Sequelize.BIGINT
+      },
+      owner_address: {
+        type: Sequelize.STRING
+      },
+      owner_city: {
+        type: Sequelize.STRING
+      },
+      owner_state: {
+        type: Sequelize.STRING
+      },
+      owner_country: {
+        type: Sequelize.STRING
+      },
+      owner_zipcode: {
+        type: Sequelize.STRING
+      },
+      lead_budget: {
+        type: Sequelize.STRING
+      },
+      lead_remark_followup: {
+        type: Sequelize.STRING
+      },
+      lead_status: {
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,
