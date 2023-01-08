@@ -1,13 +1,15 @@
 const Leads = require("../models").Leads;
 const Validator = require("fastest-validator");
-
+const User = require("../models").User;
+const AssignedLead = require("../models").AssignedLead;
+const { Op } = require("sequelize");
 //to add new lead in to database
 
 const addNewLead = async (req, res) => {
   const validationSchema = {
     description: { type: "string", optional: false },
-    assignee_id: { type: "string", optional: false },
     covered_aread: { type: "string", optional: false },
+    assignee_id: { type: "number", optional: false },
     owner_name: { type: "string", optional: false },
     owner_email: { type: "string", optional: false },
     owner_phone: { type: "string", optional: false },
@@ -30,9 +32,8 @@ const addNewLead = async (req, res) => {
   } else {
     const post = {
       lead_id: Date.now(),
-      generated_by: req.auth.userId,
+      generated_by: req.id.user_id,
       description: req.body.description,
-      assignee_id: req.body.assignee_id,
       covered_aread: req.body.covered_aread,
       owner_name: req.body.owner_name,
       owner_email: req.body.owner_email,
@@ -42,15 +43,21 @@ const addNewLead = async (req, res) => {
       owner_state: req.body.owner_state,
       owner_country: req.body.owner_country,
       owner_zipcode: req.body.owner_zipcode,
+      assignee_id: req.body.assignee_id,
       lead_budget: req.body.lead_budget,
       lead_remark_followup: req.body.lead_remark_followup,
       lead_status: req.body.lead_status,
     };
-    Leads.create(post)
-      .then((result) => {
+    const insertedLead = await Leads.create(post);
+    const assignedLead = await AssignedLead.create({
+      user_id: req.body.user_id,
+      lead_id: insertedLead.id,
+      assigned_by: req.id.user_id,
+    })
+      .then((data) => {
         return res.status(200).json({
           message: "Lead has been created successfully",
-          result: result,
+          result: { insertedLead, data },
         });
       })
       .catch((error) => {
@@ -65,7 +72,52 @@ const addNewLead = async (req, res) => {
 
 //to get all leads in table
 const getAllLeads = async (req, res) => {
-  Leads.findAll()
+  const query =
+    req.role.user_role != "Super Admin" && req.role.user_role != "Admin"
+      ? Leads.findAll({
+          include: [
+            {
+              model: User,
+              as: "GeneratedBy",
+              attributes: ["first_name", "last_name", "email", "role"],
+            },
+            {
+              model: User,
+              as: "AssignedTo",
+              attributes: ["first_name", "last_name", "email", "role"],
+            },
+          ],
+          where: {
+            [Op.or]: {
+              generated_by: {
+                [Op.eq]: req.id.user_id,
+              },
+            },
+            [Op.or]: {
+              assignee_id: {
+                [Op.eq]: req.id.user_id,
+              },
+            },
+          },
+          order: [["id", "DESC"]],
+        })
+      : Leads.findAll({
+          include: [
+            {
+              model: User,
+              as: "GeneratedBy",
+              attributes: ["first_name", "last_name", "email", "role"],
+            },
+            {
+              model: User,
+              as: "AssignedTo",
+              attributes: ["first_name", "last_name", "email", "role"],
+            },
+          ],
+          order: [["id", "DESC"]],
+        });
+
+  query
     .then((result) => {
       return res.status(200).json({
         message: "All leads fetched successfully",
@@ -73,9 +125,15 @@ const getAllLeads = async (req, res) => {
       });
     })
     .catch((error) => {
+      return res.status(404).json({
+        message: "There is no any created and assigned lead for you..",
+        error: error,
+      });
+    })
+    .catch((err) => {
       return res.status(400).json({
         message: "Something went wrong while fetching all the leads.",
-        error: error,
+        error: err,
       });
     });
 };
@@ -100,7 +158,6 @@ const getLeadById = async (req, res) => {
 const updateLead = async (req, res) => {
   const validationSchema = {
     description: { type: "string", optional: false },
-    assignee_id: { type: "string", optional: false },
     covered_aread: { type: "string", optional: false },
     owner_name: { type: "string", optional: false },
     owner_email: { type: "string", optional: false },
@@ -123,7 +180,6 @@ const updateLead = async (req, res) => {
   } else {
     const schema = {
       description: req.body.description,
-      assignee_id: req.body.assignee_id,
       covered_aread: req.body.covered_aread,
       owner_name: req.body.owner_name,
       owner_email: req.body.owner_email,

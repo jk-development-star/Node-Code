@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
 const sendMail = require("../config/mail");
 var crypto = require("crypto");
+const Leads = require("../models").Leads;
 
 //For signup or add new user//
 
@@ -109,8 +110,17 @@ function addData(req, res) {
 
 const getAlluUers = async (req, res) => {
   User.findAll({
-    attributes: ["id", "first_name", "last_name", "email", "phone", "role"],
-    where: { id: { [Op.ne]: req.auth.userId } },
+    include: [
+      {
+        model: Leads,
+        as: "GeneratedBy",
+      },
+      {
+        model: Leads,
+        as: "AssignedTo",
+      },
+    ],
+    where: { id: { [Op.ne]: req.id.user_id } },
   })
     .then((result) => {
       return res.status(200).json({
@@ -241,6 +251,7 @@ function loginUser(req, res) {
                   {
                     email: user.email,
                     userId: user.id,
+                    role: user.role,
                     expiresIn: 86400,
                   },
                   process.env.JWT_KEY,
@@ -395,7 +406,6 @@ function changePassword(req, res, next) {
 
 // for get the reset password email on entered email address//
 function forgotPasswordEmail(req, res) {
-  console.log(req.auth.userId);
   const schema = {
     email: { type: "email", optional: false },
   };

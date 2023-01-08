@@ -393,16 +393,16 @@ router.get("/", checkAuthMiddleware.checkAuth, getAlluUers);
        }
    }
  */
-router.get("/getUsers", checkAuthMiddleware.checkAuth, getUsers);
+router.all("/getUsers", checkAuthMiddleware.checkAuth, getUsers);
 router.post("/addUser", checkAuthMiddleware.checkAuth, addData);
-router.get("/:id", checkAuthMiddleware.checkAuth, getUserById);
+router.all("/:id", checkAuthMiddleware.checkAuth, getUserById);
 router.post("/updateUser/:id", checkAuthMiddleware.checkAuth, updateUser);
 router.post("/changePassword", checkAuthMiddleware.checkAuth, changePassword);
 
 router.delete("/delete/:id", checkAuthMiddleware.checkAuth, deleteUser);
 router.get("/token", checkAuthMiddleware.checkAuth, (req, res) => {
   return res.status(200).json({
-    message: "You are authenicated!!",
+    message: "You are authenticated!!",
   });
 });
 router.post("/forgotPasswordEmail", forgotPasswordEmail);
